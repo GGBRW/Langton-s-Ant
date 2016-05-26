@@ -1,0 +1,68 @@
+<canvas id="c"></canvas>
+Speed: <input id="speed" type="range" min="1" max="500" value="1" oninput="speed_value.innerHTML = this.value">
+<span id="speed_value">1</span>
+<script>
+    const ctx = c.getContext("2d");
+    c.height = window.innerHeight - 100, c.width = window.innerWidth;
+
+    document.body.style.overflow = "none", document.body.style.margin = 0;
+
+    let tileSize = 10;
+
+    let map = [];
+    for(let i = 0; i < c.width / tileSize; ++i) {
+        map[i] = [];
+        for(let j = 0; j < c.height / tileSize; ++j) map[i][j] = false;
+    }
+
+    let Ant = class {
+        constructor(x,y) {
+            this.x = x, this.y = y;
+            this.facing = 0;
+        }
+    }
+
+    let ants = [new Ant(Math.round(c.width / tileSize / 2),Math.round(c.height / tileSize / 2))];
+
+    function step() {
+        for(let i = 0; i < ants.length; ++i) {
+            map[ants[i].x][ants[i].y] = !map[ants[i].x][ants[i].y];
+            let tile = map[ants[i].x][ants[i].y];
+            ctx.fillStyle = tile ? "black" : "white";
+            ctx.fillRect(ants[i].x * tileSize, ants[i].y * tileSize, tileSize, tileSize);
+
+            ants[i].x += Math.round(Math.sin(ants[i].facing + Math.PI / 2 * (tile ? -1 : 1)));
+            ants[i].y += Math.round(Math.cos(ants[i].facing + Math.PI / 2 * (tile ? -1 : 1)));
+            ants[i].facing += tile ? -Math.PI / 2 : Math.PI / 2;
+        }
+    }
+
+    (function run() {
+        for(let i = 0; i < speed.value; ++i) step();
+        window.requestAnimationFrame(run);
+    })();
+
+    document.onkeypress = function(e) {
+        if(e.which == 99) {
+            for(let i = 0; i < c.width / tileSize; ++i) {
+                map[i] = [];
+            }
+            ctx.clearRect(0,0,c.width,c.height);
+            ants = [new Ant(Math.round(c.width / tileSize / 2),Math.round(c.height / tileSize / 2))];
+        }
+    }
+
+    c.onmousedown = function(e) {
+        ants.push(new Ant(Math.round(e.x / tileSize),Math.round(e.y / tileSize)));
+    }
+</script>
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-63707482-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
